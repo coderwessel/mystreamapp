@@ -12,6 +12,7 @@ npm run start_win (windows)
 
 ## cache folder
 Set cache folder in .env
+make sure the folder exists and user has RW permissions
 example .env file:
 
 ```text

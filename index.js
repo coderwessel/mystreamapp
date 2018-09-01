@@ -12,14 +12,14 @@ dotenv.config();
 
 
 const WEBSITE=process.env.MYSTREAMAPP_WEBSITE?process.env.MYSTREAMAPP_WEBSITE:"https://www.youtube.com.flap/"
-const WEBPATH=process.env.WEBPATH?process.env.WEBPATH:"results?search_query="
-const CACHEPATH=process.env.CACHEPATH?process.env.CACHEPATH:"cached/"
-const DATAFILEEXT=process.env.DATAFILEEXT?process.env.DATAFILEEXT:'.m4a'
-const STATUSFILEEXT=process.env.STATUSFILEEXT?process.env.STATUSFILEEXT:'.downloading'
-const PORT=process.env.PORT?process.env.PORT:3000
+const WEBPATH=process.env.MYSTREAMAPP_WEBPATH?process.env.MYSTREAMAPP_WEBPATH:"results?search_query="
+const CACHEPATH=process.env.MYSTREAMAPP_CACHEPATH?process.env.MYSTREAMAPP_CACHEPATH:"cached/"
+const DATAFILEEXT=process.env.MYSTREAMAPP_DATAFILEEXT?process.env.MYSTREAMAPP_DATAFILEEXT:'.m4a'
+const STATUSFILEEXT=process.env.MYSTREAMAPP_STATUSFILEEXT?process.env.MYSTREAMAPP_STATUSFILEEXT:'.downloading'
+const PORT=process.env.MYSTREAMAPP_PORT?process.env.MYSTREAMAPP_PORT:3000
 
 
-//var QUERY="waylon+outlaw"; 
+//var QUERY="waylon+outlaw";
 
 function geturl(query,cb){
 	console.log("looking for: "+WEBSITE+WEBPATH+query);
@@ -63,14 +63,14 @@ function FileExists(filename){
 		var datafilepath=path.resolve(filename);
 		//If yes return datafilepath
 		  if (fs.existsSync(datafilepath)) {
-			console.log("file "+datafilepath+" exists.");  
+			console.log("file "+datafilepath+" exists.");
 			return datafilepath;
 		  }
 		  //else return false
 		  else {
 			console.log("file "+datafilepath+" doesnt exist.");
-			return false;	
-		  }	 
+			return false;
+		  }
 }
 
 //eg. http://localhost:3000/?play=waylon+outlaw
@@ -90,12 +90,12 @@ app.get('/', function(req, res){
 	console.log("received query: " + req.query.play);
 	//geturl: check for a valid download url in the cloud (youtube)
 	geturl(req.query.play, (url) => {
-		//remove special characters to allow saving a file for caching	
+		//remove special characters to allow saving a file for caching
 		var prettyfilename=req.query.play.replace(/[^a-zA-Z0-9 ]/g, "");
 		// check if already cached on my server
 		var datafilepath = FileExists(CACHEPATH+prettyfilename+DATAFILEEXT);
 		var statusfilepath = FileExists(CACHEPATH+prettyfilename+STATUSFILEEXT);
-		
+
 		if (datafilepath && !statusfilepath) {
 			//YES the file is cached and complete, send the cached file:
 			console.log('sending cached copy: '+prettyfilename+DATAFILEEXT);
@@ -106,17 +106,17 @@ app.get('/', function(req, res){
 			fs.writeFile(CACHEPATH+prettyfilename+STATUSFILEEXT, 'downloading prettyfilename', (err) => {
 				if (err) throw err;
 				console.log("The status file was succesfully saved!");
-				}); 
-				
+				});
+
 			const dest = fs.createWriteStream(CACHEPATH+prettyfilename+DATAFILEEXT);
-			//and download the file in chunks 
+			//and download the file in chunks
 			console.log('trying to download: '+url);
-			//from youtube			
+			//from youtube
 			var youtubelink=WEBSITE+url;
-			
+
 			//use ytdl-core
 			var yts=ytdl(youtubelink, { filter: 'audioonly' });
-			
+
 			yts.on("data", function(data) {
 				//send chunck to the client
 				res.write(data);
@@ -128,7 +128,7 @@ app.get('/', function(req, res){
 				console.error(data.toString());
 			});
 			*/
-			
+
 			yts.on('end', function() {
 						console.log("download finished: " + prettyfilename+DATAFILEEXT);
 						dest.end();
@@ -136,18 +136,18 @@ app.get('/', function(req, res){
 						fs.unlink(CACHEPATH+prettyfilename+STATUSFILEEXT,function(err){
 							if(err) return console.log(err);
 							console.log(' status file deleted successfully: '+prettyfilename+STATUSFILEEXT);
-						});  
+						});
 						return;
 			});
 		}
 		else if(datafilepath && statusfilepath){
-			console.log('already downloading in the background, sending separate copy from ytdl: '+url); 
+			console.log('already downloading in the background, sending separate copy from ytdl: '+url);
 			//there is a cached file, but it is no yet complete: download from youtube, and leave cache alone.
 			var youtubelink=WEBSITE+url;
-			
+
 			//use ytdl-core
 			var yts=ytdl(youtubelink, { filter: 'audioonly' });
-			
+
 			yts.on("data", function(data) {
 				//send chunck to the client
 				res.write(data);
@@ -157,7 +157,7 @@ app.get('/', function(req, res){
 				console.error(data.toString());
 			});
 			*/
-			
+
 			yts.on('end', function() {
 						console.log("download finished: "+prettyfilename+DATAFILEEXT);
 						res.end();
