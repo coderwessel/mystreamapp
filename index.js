@@ -11,7 +11,7 @@ const https = require('https');
 dotenv.config();
 
 
-const WEBSITE=process.env.MYSTREAMAPP_WEBSITE?process.env.MYSTREAMAPP_WEBSITE:"https://www.youtube.com.flap/"
+const WEBSITE=process.env.MYSTREAMAPP_WEBSITE?process.env.MYSTREAMAPP_WEBSITE:"https://www.youtube.com/"
 const WEBPATH=process.env.MYSTREAMAPP_WEBPATH?process.env.MYSTREAMAPP_WEBPATH:"results?search_query="
 const CACHEPATH=process.env.MYSTREAMAPP_CACHEPATH?process.env.MYSTREAMAPP_CACHEPATH:"cached/"
 const DATAFILEEXT=process.env.MYSTREAMAPP_DATAFILEEXT?process.env.MYSTREAMAPP_DATAFILEEXT:'.m4a'
